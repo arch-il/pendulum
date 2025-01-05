@@ -1,5 +1,3 @@
-use core::f32;
-
 use macroquad::{color, shapes::draw_line, time, window};
 use pendulum::Pendulum;
 
@@ -18,10 +16,7 @@ fn window_conf() -> window::Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut pendulum = Pendulum::new(
-        vec![-f32::consts::PI / 2.0, f32::consts::PI, f32::consts::PI],
-        vec![50., 50., 50.],
-    );
+    let mut pendulum = Pendulum::new(vec![0.0], vec![100.]);
 
     loop {
         window::clear_background(color::BLACK);
@@ -33,11 +28,7 @@ async fn main() {
             }
         }
 
-        pendulum.tick(time::get_frame_time());
-        pendulum.tick(time::get_frame_time());
-        pendulum.tick(time::get_frame_time());
-        pendulum.tick(time::get_frame_time());
-        pendulum.tick(time::get_frame_time());
+        pendulum.update(time::get_frame_time());
 
         window::next_frame().await
     }
