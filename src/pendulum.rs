@@ -37,7 +37,7 @@ impl Pendulum {
         for i in 0..pen_num {
             self.velocities[i].y += G * dt;
 
-            p_cords.push(self.cords[i + 1].clone());
+            p_cords.push(self.cords[i + 1]);
 
             self.cords[i + 1] += self.velocities[i] * dt;
         }
@@ -55,8 +55,8 @@ impl Pendulum {
             }
         }
 
-        for i in 0..pen_num {
-            self.velocities[i] = (self.cords[i + 1] - p_cords[i]) / dt;
+        for (i, v) in self.velocities.iter_mut().enumerate() {
+            *v = (self.cords[i + 1] - p_cords[i]) / dt;
         }
     }
 }
