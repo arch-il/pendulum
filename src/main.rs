@@ -2,6 +2,7 @@ use macroquad::{color, shapes::draw_line, time, window};
 use pendulum::Pendulum;
 
 mod pendulum;
+mod vec2;
 
 fn window_conf() -> window::Conf {
     window::Conf {
@@ -28,11 +29,18 @@ async fn main() {
         let mut points = pendulum.cords.iter().peekable();
         while let Some(current) = points.next() {
             if let Some(next) = points.peek() {
-                draw_line(current.x, current.y, next.x, next.y, 5.0, color::LIME);
+                draw_line(
+                    current.x as f32,
+                    current.y as f32,
+                    next.x as f32,
+                    next.y as f32,
+                    5.0,
+                    color::LIME,
+                );
             }
         }
 
-        pendulum.update(time::get_frame_time());
+        pendulum.update(time::get_frame_time() as f64);
 
         kinetic_energies[index] = pendulum
             .velocities
@@ -40,7 +48,7 @@ async fn main() {
             .fold(0.0, |acc, v| acc + (v.length() / 100.0).powi(2))
             / 2.0;
         potential_energies[index] = pendulum.cords.iter().fold(0.0, |acc, c| {
-            acc + (window::screen_height() - c.y) / 100.0 * 9.8
+            acc + (window::screen_height() - c.y as f32) / 100.0 * 9.8
         }) / 2.0;
         index += 1;
         if index >= 500 {
@@ -60,9 +68,9 @@ async fn main() {
                 }
                 draw_line(
                     window::screen_width() - curr_i as f32,
-                    window::screen_height() - curr_k,
+                    window::screen_height() - curr_k as f32,
                     window::screen_width() - *next_i as f32,
-                    window::screen_height() - **next_k,
+                    window::screen_height() - **next_k as f32,
                     1.0,
                     color::RED,
                 );
@@ -76,9 +84,9 @@ async fn main() {
                 );
                 draw_line(
                     window::screen_width() - curr_i as f32,
-                    window::screen_height() - (curr_k + curr_p),
+                    window::screen_height() - (curr_k as f32 + curr_p),
                     window::screen_width() - *next_i as f32,
-                    window::screen_height() - (**next_k + **next_p),
+                    window::screen_height() - (**next_k as f32 + **next_p),
                     1.0,
                     color::PURPLE,
                 );
