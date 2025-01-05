@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 
 use macroquad::{
     color,
+    input::{self, KeyCode},
     shapes::draw_line,
     text::draw_text,
     window::{self, screen_height, screen_width},
@@ -19,6 +20,9 @@ pub struct Database {
     pub theta: Vec<f32>, // angle
     pub alpha: Vec<f32>, // angular acceleration
     p_theta: f32,
+
+    pub energy_enabled: bool,
+    pub phase_space_enabled: bool,
 }
 
 impl Database {
@@ -32,12 +36,22 @@ impl Database {
             theta: Vec::new(),
             alpha: Vec::new(),
             p_theta: 0.0,
+
+            energy_enabled: true,
+            phase_space_enabled: true,
         }
     }
 
     pub fn update(&mut self, pendulum: &Pendulum, dt: f32) {
         self.update_energies(pendulum);
         self.update_phase_space(pendulum, dt);
+
+        if input::is_key_pressed(KeyCode::E) {
+            self.energy_enabled = !self.energy_enabled;
+        }
+        if input::is_key_pressed(KeyCode::P) {
+            self.phase_space_enabled = !self.phase_space_enabled;
+        }
     }
 
     fn update_phase_space(&mut self, pendulum: &Pendulum, dt: f32) {
@@ -95,8 +109,12 @@ impl Database {
             20.0,
             color::LIGHTGRAY,
         );
-        self.draw_energies();
-        self.draw_phase_space();
+        if self.energy_enabled {
+            self.draw_energies();
+        }
+        if self.phase_space_enabled {
+            self.draw_phase_space();
+        }
     }
 
     fn draw_energies(&self) {
