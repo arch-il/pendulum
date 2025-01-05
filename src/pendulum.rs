@@ -1,17 +1,18 @@
-use macroquad::math::Vec2;
+use macroquad::{math::Vec2, window};
 
 pub struct Pendulum {
-    pub p1: Vec2,
-    pub p2: Vec2,
-    pub p3: Vec2,
+    pub points: Vec<Vec2>,
 }
 
 impl Pendulum {
-    pub fn new() -> Self {
-        Self {
-            p1: Vec2::new(0.0, 0.0),
-            p2: Vec2::new(100.0, 100.0),
-            p3: Vec2::new(200.0, 100.0),
+    pub fn new(angles: Vec<f32>, lengths: Vec<f32>) -> Self {
+        let mut p = Vec2::new(window::screen_width() / 2.0, window::screen_height() / 2.0);
+        let mut points = Vec::new();
+        points.push(p);
+        for (&a, &l) in angles.iter().zip(lengths.iter()) {
+            p += Vec2::new(l * f32::cos(a), l * f32::sin(a));
+            points.push(p);
         }
+        Self { points }
     }
 }
