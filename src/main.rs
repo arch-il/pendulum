@@ -49,7 +49,7 @@ async fn main() {
             / 2.0;
         potential_energies[index] = pendulum.cords.iter().fold(0.0, |acc, c| {
             acc + (window::screen_height() - c.y as f32) / 100.0 * 9.8
-        }) / 2.0;
+        });
         index += 1;
         if index >= 500 {
             index = 0;
@@ -66,27 +66,29 @@ async fn main() {
                 if *next_i == 500 - index || curr_i == 500 - index {
                     continue;
                 }
+
+                const SHRINK: f32 = 0.6;
                 draw_line(
                     window::screen_width() - curr_i as f32,
-                    window::screen_height() - curr_k as f32,
+                    window::screen_height() - curr_k as f32 * SHRINK,
                     window::screen_width() - *next_i as f32,
-                    window::screen_height() - **next_k as f32,
+                    window::screen_height() - **next_k as f32 * SHRINK,
                     1.0,
                     color::RED,
                 );
                 draw_line(
                     window::screen_width() - curr_i as f32,
-                    window::screen_height() - curr_p,
+                    window::screen_height() - curr_p * SHRINK,
                     window::screen_width() - *next_i as f32,
-                    window::screen_height() - **next_p,
+                    window::screen_height() - **next_p * SHRINK,
                     1.0,
                     color::BLUE,
                 );
                 draw_line(
                     window::screen_width() - curr_i as f32,
-                    window::screen_height() - (curr_k as f32 + curr_p),
+                    window::screen_height() - (curr_k as f32 + curr_p) * SHRINK,
                     window::screen_width() - *next_i as f32,
-                    window::screen_height() - (**next_k as f32 + **next_p),
+                    window::screen_height() - (**next_k as f32 + **next_p) * SHRINK,
                     1.0,
                     color::PURPLE,
                 );
