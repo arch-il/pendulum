@@ -1,4 +1,5 @@
 use core::f32;
+use std::f32::consts::PI;
 
 use macroquad::{
     color,
@@ -17,6 +18,7 @@ pub struct Database {
 
     pub theta: Vec<f32>, // angle
     pub alpha: Vec<f32>, // angular acceleration
+    p_theta: f32,
 }
 
 impl Database {
@@ -29,21 +31,30 @@ impl Database {
 
             theta: Vec::new(),
             alpha: Vec::new(),
+            p_theta: 0.0,
         }
     }
 
     pub fn update(&mut self, pendulum: &Pendulum, dt: f32) {
         self.update_energies(pendulum);
-        // self.update_phase_space(pendulum, dt);
+        self.update_phase_space(pendulum, dt);
     }
 
     fn update_phase_space(&mut self, pendulum: &Pendulum, dt: f32) {
         let vec =
             *pendulum.cords.last().unwrap() - *pendulum.cords.iter().rev().skip(1).next().unwrap();
-        let theta = f32::atan2(vec.x as f32, vec.y as f32);
-        let alpha = (theta - self.theta.last().unwrap_or(&0.0)) / dt;
+        let mut theta = f32::atan2(vec.y as f32, vec.x as f32);
 
-        if alpha.abs() > 20.0 {
+        if theta - self.p_theta > PI {
+            theta -= 2.0 * PI;
+        } else if theta - self.p_theta < -PI {
+            theta += 2.0 * PI;
+        }
+
+        let alpha = (theta - self.p_theta) / dt;
+        self.p_theta = theta;
+
+        if alpha.abs() > 100.0 || alpha == 0.0 {
             return;
         }
 
@@ -74,7 +85,7 @@ impl Database {
     pub fn draw(&self) {
         draw_text(
             &format!(
-                "{}; {}; {}",
+                "{}; {}; {};",
                 self.mechanical_energy.last().unwrap_or(&0.0),
                 self.theta.last().unwrap_or(&0.0),
                 self.alpha.last().unwrap_or(&0.0)
@@ -85,7 +96,7 @@ impl Database {
             color::LIGHTGRAY,
         );
         self.draw_energies();
-        // self.draw_phase_space();
+        self.draw_phase_space();
     }
 
     fn draw_energies(&self) {
@@ -142,6 +153,16 @@ impl Database {
             .peekable();
 
         const SCALE: f32 = 20.0;
+
+        // ength of pi
+        draw_line(
+            screen_width() / 2.0,
+            screen_height() / 2.0,
+            screen_height() / 2.0 + PI * SCALE,
+            screen_height() / 2.0,
+            5.0,
+            color::RED,
+        );
 
         while let Some((&t, &a)) = iter.next() {
             if let Some((&nt, &na)) = iter.peek() {
