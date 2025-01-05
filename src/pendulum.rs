@@ -5,11 +5,11 @@ use crate::vec2::Vec2;
 pub struct Pendulum {
     pub cords: Vec<Vec2>,
     pub velocities: Vec<Vec2>,
-    pub lengths: Vec<f64>,
+    pub lengths: Vec<f32>,
 }
 
 impl Pendulum {
-    pub fn new(angles: Vec<f64>, lengths: Vec<f64>) -> Self {
+    pub fn new(angles: Vec<f32>, lengths: Vec<f32>) -> Self {
         let mut p = Vec2::new(
             (window::screen_width() / 2.0) as f64,
             (window::screen_height() / 3.0) as f64,
@@ -17,7 +17,7 @@ impl Pendulum {
         let mut cords = Vec::new();
         cords.push(p);
         for (&a, &l) in angles.iter().zip(lengths.iter()) {
-            p += Vec2::new(l * f64::cos(a), l * f64::sin(a));
+            p += Vec2::new((l * f32::cos(a)) as f64, (l * f32::sin(a)) as f64);
             cords.push(p);
         }
         Self {
@@ -28,7 +28,7 @@ impl Pendulum {
     }
 
     pub fn update(&mut self, dt: f64) {
-        const TARGET_STEP: f64 = 0.000002;
+        const TARGET_STEP: f64 = 0.000001;
         for _ in 0..(dt / TARGET_STEP) as usize {
             self.tick(TARGET_STEP);
         }
@@ -51,7 +51,7 @@ impl Pendulum {
             let dv = self.cords[i + 1] - self.cords[i];
             let d = dv.length();
 
-            let corr = (self.lengths[i] - d) / d;
+            let corr = (self.lengths[i] as f64 - d) / d;
             if i == 0 {
                 self.cords[i + 1] += dv * corr;
             } else {
