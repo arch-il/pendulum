@@ -86,9 +86,9 @@ impl Database {
         draw_text(
             &format!(
                 "{}; {}; {};",
-                self.mechanical_energy.last().unwrap_or(&0.0),
+                self.mechanical_energy[if self.index == 0 { 499 } else { self.index - 1 }],
                 self.theta.last().unwrap_or(&0.0),
-                self.alpha.last().unwrap_or(&0.0)
+                self.alpha.last().unwrap_or(&0.0),
             ),
             5.0,
             12.0,
@@ -149,16 +149,17 @@ impl Database {
             .iter()
             .zip(self.alpha.iter())
             .rev()
-            .take(500)
+            .take(1000)
             .peekable();
 
-        const SCALE: f32 = 20.0;
+        const SCALE_V: f32 = 25.0;
+        const SCALE_H: f32 = 50.0;
 
         // ength of pi
         draw_line(
             screen_width() / 2.0,
             screen_height() / 2.0,
-            screen_height() / 2.0 + PI * SCALE,
+            screen_height() / 2.0 + PI * SCALE_H,
             screen_height() / 2.0,
             5.0,
             color::RED,
@@ -167,10 +168,10 @@ impl Database {
         while let Some((&t, &a)) = iter.next() {
             if let Some((&nt, &na)) = iter.peek() {
                 draw_line(
-                    t * SCALE + screen_width() / 2.0,
-                    a * SCALE + screen_height() / 2.0,
-                    nt * SCALE + screen_width() / 2.0,
-                    na * SCALE + screen_height() / 2.0,
+                    t * SCALE_H + screen_width() / 2.0,
+                    a * SCALE_V + screen_height() / 2.0,
+                    nt * SCALE_H + screen_width() / 2.0,
+                    na * SCALE_V + screen_height() / 2.0,
                     1.0,
                     color::GRAY,
                 );

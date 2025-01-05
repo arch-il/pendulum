@@ -28,7 +28,7 @@ impl Pendulum {
     }
 
     pub fn update(&mut self, dt: f32) {
-        const TARGET_STEP: f64 = 0.000001;
+        const TARGET_STEP: f64 = 0.00001;
         for _ in 0..(dt as f64 / TARGET_STEP) as usize {
             self.tick(TARGET_STEP);
         }
@@ -61,7 +61,7 @@ impl Pendulum {
         }
 
         for (i, v) in self.velocities.iter_mut().enumerate() {
-            *v = (self.cords[i + 1] - p_cords[i]) / dt;
+            *v = (self.cords[i + 1] - p_cords[i]) * 0.999_999_9 / dt;
         }
     }
 }

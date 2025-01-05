@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use database::Database;
 use macroquad::{color, shapes::draw_line, time, window};
 use pendulum::Pendulum;
@@ -19,7 +21,7 @@ fn window_conf() -> window::Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut pendulum = Pendulum::new(vec![0.0, 0.0, 0.0], vec![75., 75., 75.]);
+    let mut pendulum = Pendulum::new(vec![0.0, PI / 2.0, PI / 2.0], vec![75., 75., 75.]);
     let mut database = Database::new();
 
     loop {
