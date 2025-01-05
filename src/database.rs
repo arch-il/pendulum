@@ -1,4 +1,11 @@
-use macroquad::{color, shapes::draw_line, window};
+use core::f32;
+
+use macroquad::{
+    color,
+    shapes::draw_line,
+    text::draw_text,
+    window::{self, screen_height, screen_width},
+};
 
 use crate::pendulum::Pendulum;
 
@@ -7,6 +14,9 @@ pub struct Database {
     pub potential_energy: [f32; 500],
     pub mechanical_energy: [f32; 500],
     index: usize,
+
+    pub theta: Vec<f32>, // angle
+    pub alpha: Vec<f32>, // angular acceleration
 }
 
 impl Database {
@@ -16,11 +26,29 @@ impl Database {
             potential_energy: [0.0; 500],
             mechanical_energy: [0.0; 500],
             index: 0,
+
+            theta: Vec::new(),
+            alpha: Vec::new(),
         }
     }
 
-    pub fn update(&mut self, pendulum: &Pendulum) {
+    pub fn update(&mut self, pendulum: &Pendulum, dt: f32) {
         self.update_energies(pendulum);
+        // self.update_phase_space(pendulum, dt);
+    }
+
+    fn update_phase_space(&mut self, pendulum: &Pendulum, dt: f32) {
+        let vec =
+            *pendulum.cords.last().unwrap() - *pendulum.cords.iter().rev().skip(1).next().unwrap();
+        let theta = f32::atan2(vec.x as f32, vec.y as f32);
+        let alpha = (theta - self.theta.last().unwrap_or(&0.0)) / dt;
+
+        if alpha.abs() > 20.0 {
+            return;
+        }
+
+        self.theta.push(theta);
+        self.alpha.push(alpha);
     }
 
     fn update_energies(&mut self, pendulum: &Pendulum) {
@@ -38,13 +66,26 @@ impl Database {
             self.kinetic_energy[self.index] + self.potential_energy[self.index];
 
         self.index += 1;
-        if self.index >= 500 {
+        if self.index >= screen_width() as usize {
             self.index = 0;
         }
     }
 
     pub fn draw(&self) {
+        draw_text(
+            &format!(
+                "{}; {}; {}",
+                self.mechanical_energy.last().unwrap_or(&0.0),
+                self.theta.last().unwrap_or(&0.0),
+                self.alpha.last().unwrap_or(&0.0)
+            ),
+            5.0,
+            12.0,
+            20.0,
+            color::LIGHTGRAY,
+        );
         self.draw_energies();
+        // self.draw_phase_space();
     }
 
     fn draw_energies(&self) {
@@ -86,6 +127,31 @@ impl Database {
                     window::screen_height() - **next_m * SHRINK,
                     1.0,
                     color::PURPLE,
+                );
+            }
+        }
+    }
+
+    fn draw_phase_space(&self) {
+        let mut iter = self
+            .theta
+            .iter()
+            .zip(self.alpha.iter())
+            .rev()
+            .take(500)
+            .peekable();
+
+        const SCALE: f32 = 20.0;
+
+        while let Some((&t, &a)) = iter.next() {
+            if let Some((&nt, &na)) = iter.peek() {
+                draw_line(
+                    t * SCALE + screen_width() / 2.0,
+                    a * SCALE + screen_height() / 2.0,
+                    nt * SCALE + screen_width() / 2.0,
+                    na * SCALE + screen_height() / 2.0,
+                    1.0,
+                    color::GRAY,
                 );
             }
         }

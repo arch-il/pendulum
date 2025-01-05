@@ -27,9 +27,9 @@ impl Pendulum {
         }
     }
 
-    pub fn update(&mut self, dt: f64) {
-        const TARGET_STEP: f64 = 0.000001;
-        for _ in 0..(dt / TARGET_STEP) as usize {
+    pub fn update(&mut self, dt: f32) {
+        const TARGET_STEP: f64 = 0.0001;
+        for _ in 0..(dt as f64 / TARGET_STEP) as usize {
             self.tick(TARGET_STEP);
         }
     }

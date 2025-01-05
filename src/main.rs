@@ -42,9 +42,11 @@ async fn main() {
 
         database.draw();
 
-        pendulum.update(time::get_frame_time() as f64);
+        // updates
+        let dt = time::get_frame_time();
+        pendulum.update(dt);
 
-        database.update(&pendulum);
+        database.update(&pendulum, dt);
 
         window::next_frame().await
     }
